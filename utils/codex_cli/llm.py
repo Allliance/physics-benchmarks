@@ -1,0 +1,396 @@
+"""Small wrapper that uses `codex exec` like a text-generation API."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import shutil
+import subprocess
+import tempfile
+import time
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+
+DEFAULT_SYSTEM_PROMPT = (
+    "Answer using only the supplied prompt. Do not use tools, shell commands, "
+    "files, web search, or external context."
+)
+
+TOOL_ITEM_TYPES = {
+    "command_execution",
+    "file_change",
+    "mcp_tool_call",
+    "web_search",
+}
+
+
+class CodexExecError(RuntimeError):
+    """Raised when `codex exec` fails."""
+
+
+class CodexToolUseError(RuntimeError):
+    """Raised when Codex emits a tool event despite the no-tools wrapper."""
+
+
+class CodexToolRetryError(CodexToolUseError):
+    """Raised after Codex keeps using tools across all retry attempts."""
+
+
+def validate_codex_result(result) -> None:
+    """Require a nonempty answer whose final terminal event is completion.
+
+    Transient connection errors may precede a successful completion. An error
+    after completion, a failed terminal event, or an unfinished stream is not a
+    completed model outcome.
+    """
+    terminal = [(index, event.get("type")) for index, event in enumerate(result.events)
+                if event.get("type") in {"turn.completed", "turn.failed"}]
+    if not terminal or terminal[-1][1] != "turn.completed":
+        raise ValueError("Codex stream did not complete successfully")
+    completed_at = terminal[-1][0]
+    if any(event.get("type") == "error" for event in result.events[completed_at + 1:]):
+        raise ValueError("Codex stream errored after completion")
+    if not isinstance(result.text, str) or not result.text.strip():
+        raise ValueError("Codex stream completed without answer text")
+
+
+@dataclass
+class CodexLLMResult:
+    text: str
+    events: list[dict[str, Any]]
+    usage: dict[str, Any] | None = None
+    attempts: int = 1
+    #: Scratch files the agent wrote into its sandbox cwd, captured before the
+    #: temporary directory is torn down. Maps cwd-relative path -> file text.
+    workspace_files: dict[str, str] | None = None
+
+
+@dataclass
+class CodexLLM:
+    """Minimal `codex exec` client.
+
+    This does not expose a server. It gives Python code a simple function-call
+    interface around Codex CLI's non-interactive mode.
+    """
+
+    model: str | None = None
+    model_reasoning_effort: str | None = None
+    codex_bin: str = "codex"
+    timeout: float | None = None
+    system_prompt: str = DEFAULT_SYSTEM_PROMPT
+    strict_no_tools: bool = True
+    max_tool_retries: int = 3
+    max_exec_retries: int = 6
+    exec_retry_delay: float = 10.0
+    web_search: str = "disabled"
+    sandbox_mode: str = "read-only"
+    env_inherit: str = "none"
+    env_set: dict[str, str] | None = None
+    #: Extra ``-c key=value`` settings, used for isolated custom providers.
+    config_overrides: list[str] | None = None
+    #: One of "auto", "concise", "detailed", "none". When set, Codex emits
+    #: `reasoning` items carrying the model's reasoning summaries.
+    reasoning_summary: str | None = None
+    #: Capture scratch files the agent wrote into its sandbox cwd.
+    capture_workspace: bool = False
+    #: Skip captured files larger than this (bytes); avoids slurping data dumps.
+    capture_max_bytes: int = 1_000_000
+
+    def complete(
+        self,
+        prompt: str,
+        *,
+        system_prompt: str | None = None,
+        output_schema: Path | None = None,
+        api_key: str | None = None,
+        image_paths: list[Path] | None = None,
+    ) -> CodexLLMResult:
+        last_error: CodexToolUseError | None = None
+        max_attempts = 1 if not self.strict_no_tools else self.max_tool_retries + 1
+        for attempt in range(1, max_attempts + 1):
+            try:
+                result = self._complete_once(
+                    prompt,
+                    system_prompt=system_prompt,
+                    output_schema=output_schema,
+                    api_key=api_key,
+                    image_paths=image_paths,
+                )
+                result.attempts = attempt
+                return result
+            except CodexToolUseError as exc:
+                last_error = exc
+                if attempt == max_attempts:
+                    break
+
+        raise CodexToolRetryError(
+            f"Codex used tools after {max_attempts} attempt(s). Last error: {last_error}"
+        )
+
+    def _complete_once(
+        self,
+        prompt: str,
+        *,
+        system_prompt: str | None,
+        output_schema: Path | None,
+        api_key: str | None,
+        image_paths: list[Path] | None,
+    ) -> CodexLLMResult:
+        workspace_files: dict[str, str] | None = None
+        for attempt in range(1, self.max_exec_retries + 2):
+            runtime_root = Path.home() / ".codex" / "run-homes"
+            runtime_root.mkdir(mode=0o700, parents=True, exist_ok=True)
+            with (tempfile.TemporaryDirectory(prefix="codex-llm-") as tmpdir,
+                  tempfile.TemporaryDirectory(prefix="run-", dir=runtime_root) as codex_home):
+                cmd = self._build_command(Path(tmpdir), output_schema, image_paths or [])
+                env = os.environ.copy()
+                # The standalone Codex binary is packaged with arg0. Concurrent
+                # launches otherwise race while cleaning shared /tmp/arg0 dirs.
+                env["TMPDIR"] = tmpdir
+                env["TMP"] = tmpdir
+                env["TEMP"] = tmpdir
+                source_home = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex"))
+                auth = source_home / "auth.json"
+                if auth.is_file():
+                    copied_auth = Path(codex_home) / "auth.json"
+                    shutil.copy2(auth, copied_auth)
+                    copied_auth.chmod(0o600)
+                env["CODEX_HOME"] = codex_home
+                if api_key:
+                    env["CODEX_API_KEY"] = api_key
+
+                completed = subprocess.run(
+                    cmd,
+                    input=self._compose_prompt(system_prompt, prompt),
+                    text=True,
+                    capture_output=True,
+                    timeout=self.timeout,
+                    env=env,
+                    check=False,
+                )
+                if self.capture_workspace:
+                    workspace_files = self._snapshot_workspace(Path(tmpdir))
+
+            if completed.returncode == 0:
+                break
+            diagnostic = f"{completed.stderr}\n{completed.stdout}"
+            if attempt <= self.max_exec_retries and is_retryable_exec_error(diagnostic):
+                time.sleep(min(self.exec_retry_delay * attempt, 60.0))
+                continue
+            raise CodexExecError(
+                f"codex exec failed with exit code {completed.returncode}\n"
+                f"stderr:\n{completed.stderr.strip()}\n"
+                f"stdout:\n{completed.stdout.strip()[-3000:]}"
+            )
+
+        result = self._parse_jsonl(completed.stdout)
+        result.workspace_files = workspace_files
+        return result
+
+    def _snapshot_workspace(self, cwd: Path) -> dict[str, str]:
+        """Read back scratch files the agent wrote, before the tmpdir is removed."""
+        files: dict[str, str] = {}
+        for path in sorted(cwd.rglob("*")):
+            if not path.is_file() or path.is_symlink():
+                continue
+            try:
+                if path.stat().st_size > self.capture_max_bytes:
+                    continue
+                files[str(path.relative_to(cwd))] = path.read_text(
+                    encoding="utf-8", errors="replace"
+                )
+            except OSError:
+                continue
+        return files
+
+    def _build_command(self, cwd: Path, output_schema: Path | None,
+                       image_paths: list[Path]) -> list[str]:
+        cmd = [
+            self.codex_bin,
+            "--ask-for-approval",
+            "never",
+            "exec",
+            "--json",
+            "--ephemeral",
+            "--ignore-user-config",
+            "--ignore-rules",
+            "--skip-git-repo-check",
+            "--sandbox",
+            self.sandbox_mode,
+            "--cd",
+            str(cwd),
+            "-c",
+            f'web_search="{self.web_search}"',
+            "-c",
+            "features.multi_agent=false",
+            "-c",
+            "project_doc_max_bytes=0",
+            "-c",
+            "project_root_markers=[]",
+            "-c",
+            f'shell_environment_policy.inherit="{self.env_inherit}"',
+            "-c",
+            "allow_login_shell=false",
+        ]
+        for key, value in (self.env_set or {}).items():
+            cmd.extend(["-c", f'shell_environment_policy.set.{key}="{value}"'])
+        for override in self.config_overrides or []:
+            cmd.extend(["-c", override])
+        if self.model:
+            cmd.extend(["--model", self.model])
+        if self.model_reasoning_effort:
+            cmd.extend(["-c", f'model_reasoning_effort="{self.model_reasoning_effort}"'])
+        if self.reasoning_summary:
+            cmd.extend(["-c", f'model_reasoning_summary="{self.reasoning_summary}"'])
+        if output_schema:
+            cmd.extend(["--output-schema", str(output_schema)])
+        for image_path in image_paths:
+            cmd.extend(["--image", str(image_path)])
+        cmd.append("-")
+        return cmd
+
+    def _compose_prompt(self, system_prompt: str | None, prompt: str) -> str:
+        system = self.system_prompt if system_prompt is None else system_prompt
+        if not system:
+            return prompt
+        return f"{system.strip()}\n\nUser prompt:\n{prompt}"
+
+    def _parse_jsonl(self, stdout: str) -> CodexLLMResult:
+        events: list[dict[str, Any]] = []
+        tool_events: list[str] = []
+        final_text = ""
+        usage: dict[str, Any] | None = None
+
+        for line in stdout.splitlines():
+            if not line.strip():
+                continue
+            event = json.loads(line)
+            events.append(event)
+
+            item = event.get("item") or {}
+            item_type = item.get("type")
+            if self.strict_no_tools and item_type in TOOL_ITEM_TYPES:
+                tool_events.append(item_type)
+            if item_type == "agent_message" and "text" in item:
+                final_text = item["text"]
+            if event.get("type") == "turn.completed":
+                usage = event.get("usage")
+
+        if tool_events:
+            seen = ", ".join(sorted(set(tool_events)))
+            raise CodexToolUseError(f"Codex used disallowed tool event(s): {seen}")
+        if not final_text:
+            raise CodexExecError("codex exec completed without an agent message.")
+        return CodexLLMResult(text=final_text, events=events, usage=usage)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Call Codex CLI like a simple LLM API.")
+    parser.add_argument("prompt", nargs="?", help="Prompt text. Reads stdin when omitted.")
+    parser.add_argument("--system", default=DEFAULT_SYSTEM_PROMPT)
+    parser.add_argument("--model", default=os.getenv("CODEX_LLM_MODEL"))
+    parser.add_argument("--model-reasoning-effort", default=os.getenv("CODEX_LLM_REASONING_EFFORT"))
+    parser.add_argument("--codex-bin", default=os.getenv("CODEX_BIN", "codex"))
+    parser.add_argument("--web-search", default=os.getenv("CODEX_LLM_WEB_SEARCH", "disabled"))
+    parser.add_argument("--timeout", type=float, default=120.0)
+    parser.add_argument("--max-exec-retries", type=int, default=6)
+    parser.add_argument("--exec-retry-delay", type=float, default=10.0)
+    parser.add_argument(
+        "--max-tool-retries",
+        type=int,
+        default=3,
+        help="Retry this many times if Codex emits tool events.",
+    )
+    parser.add_argument("--output-schema", type=Path)
+    parser.add_argument("--api-key", default=os.getenv("CODEX_API_KEY"))
+    parser.add_argument(
+        "--allow-tools",
+        action="store_true",
+        help="Do not fail if Codex emits tool events.",
+    )
+    parser.add_argument(
+        "--show-usage",
+        action="store_true",
+        help="Print token usage JSON to stderr after the response.",
+    )
+    parser.add_argument(
+        "--sandbox",
+        default="read-only",
+        choices=["read-only", "workspace-write", "danger-full-access"],
+        help="Codex sandbox mode for shell commands.",
+    )
+    parser.add_argument(
+        "--env-inherit",
+        default="none",
+        choices=["none", "core", "all"],
+        help="How much of the parent environment the sandboxed shell inherits.",
+    )
+    parser.add_argument(
+        "--env-set",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help="Set an env var inside the sandboxed shell; repeatable.",
+    )
+    parser.add_argument(
+        "--reasoning-summary",
+        choices=["auto", "concise", "detailed", "none"],
+        help="Ask Codex to emit reasoning-summary items in the event stream.",
+    )
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    prompt = args.prompt
+    if prompt is None:
+        import sys
+
+        prompt = sys.stdin.read()
+
+    client = CodexLLM(
+        model=args.model,
+        model_reasoning_effort=args.model_reasoning_effort,
+        codex_bin=args.codex_bin,
+        timeout=args.timeout,
+        system_prompt=args.system,
+        strict_no_tools=not args.allow_tools,
+        max_tool_retries=args.max_tool_retries,
+        max_exec_retries=args.max_exec_retries,
+        exec_retry_delay=args.exec_retry_delay,
+        web_search=args.web_search,
+        sandbox_mode=args.sandbox,
+        env_inherit=args.env_inherit,
+        env_set=dict(item.split("=", 1) for item in args.env_set),
+        reasoning_summary=args.reasoning_summary,
+    )
+    result = client.complete(
+        prompt,
+        output_schema=args.output_schema,
+        api_key=args.api_key,
+    )
+    print(result.text)
+    if args.show_usage and result.usage is not None:
+        import sys
+
+        print(json.dumps(result.usage), file=sys.stderr)
+    return 0
+
+
+def is_retryable_exec_error(stderr: str) -> bool:
+    if not stderr.strip():
+        return True
+    retry_markers = [
+        "429",
+        "Too Many Requests",
+        "exceeded retry limit",
+        "failed to refresh available models",
+        "403 Forbidden",
+        "failed to connect to websocket",
+        "rate limit",
+        "at capacity",
+    ]
+    return any(marker.lower() in stderr.lower() for marker in retry_markers)

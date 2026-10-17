@@ -1,0 +1,495 @@
+[
+  {
+    "index": 0,
+    "type": "HF",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "interaction_ratio_missing"
+    ],
+    "audit_summary": "The latest official prompt replaces 'half-filling' by 'half-particle per site', so the total density is now unambiguous. It still does not specify $U_0/U_1$. At density one-half in the atomic limit, a quarter of the sites can be doubly occupied without nearest-neighbor cost, giving $U_0/4$, whereas the no-doublon charge pattern gives $U_1/2$; the former wins when $U_0<2U_1$. The corrected problem therefore retains the latest density wording and adds only the atomic-limit interaction hierarchy required by the reference."
+  },
+  {
+    "index": 1,
+    "type": "HF",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "reference_incomplete"
+    ],
+    "audit_summary": "The question is well-defined as written and its prompt is retained byte-for-byte. Translation symmetry fixes the two momentum labels to be equal but does not constrain the spin indices. The stated Fock sum explicitly includes $s\\ne s'$, so the reference omits the two spin-off-diagonal channels. Repulsive $U_n>0$ does not remove them: in a spin-rotation-invariant decoupling they represent transverse magnetization, and the two off-diagonal averages are related by Hermitian conjugation. The two-term reference would require an additional spin-diagonal ($z$-collinear) restriction that the question does not impose."
+  },
+  {
+    "index": 2,
+    "type": "HF",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "prompt_axis_inconsistent_with_reference"
+    ],
+    "audit_summary": "The latest official prompt removes the word 'original', so it now asks for the six corners of the reduced Brillouin zone itself rather than folded representatives of the original $K/K'$ points. For the conventional commensurate $\\sqrt{3}\\times\\sqrt{3}$ triangular-lattice supercell, the reduced hexagon is scaled by $1/\\sqrt{3}$ and rotated by $30^\\circ$ relative to the original zone. With the prompt's $k_y$-axis orientation, its vertices are $(\\pm2.42,0.00)$ and $(\\pm1.21,\\pm2.09)$, whereas the published reference is exactly the reduced-zone vertex set when the original hexagon has two corners on the $k_x$ axis. The minimal correction therefore changes only $k_y$ to $k_x$ and retains the published reference byte-for-byte."
+  },
+  {
+    "index": 3,
+    "type": "HF",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "complexity_measure_ambiguous",
+      "block_structure_omitted"
+    ],
+    "audit_summary": "At each reduced-zone momentum there are $2N_q$ layer/plane-wave basis states per valley and $4N_q$ states across both valleys. Thus the matrix dimension is $4N_q$, a single dense combined matrix contains $16N_q^2$ scalar entries, and exploiting the two independent valley blocks requires only $8N_q^2$ entries. The phrase 'spatial complexity' does not identify which quantity is requested, so the original reference is not uniquely determined."
+  },
+  {
+    "index": 4,
+    "type": "HF",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 5,
+    "type": "ED",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "boundary_condition_missing",
+      "pseudospin_notation_typo",
+      "operator_definition_ambiguous"
+    ],
+    "audit_summary": "The reference answer is correct on an open chain or an even periodic chain, but the original question does not specify the boundary condition. Exact full-Fock-space Mathematica calculations give $[H,\\hat N]=[H,S^z]=[H,\\eta^2]=0$ while the option-(c) hopping operator and double occupancy have nonzero commutators on an open four-site chain; $[H,\\eta^2]$ also vanishes on an even four-site ring but is nonzero on an odd three-site ring. In addition, the original definition uses $(\\eta^z)^2$ and then defines $\\eta_0$ instead of $\\eta^z$, while $N$ and $S^z$ are left implicit as operators. The corrected prompt minimally specifies an open $L$-site chain and defines the intended operators; the reference answer remains unchanged."
+  },
+  {
+    "index": 6,
+    "type": "VMC",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "reference_internally_inconsistent",
+      "symmetry_criterion_ambiguous"
+    ],
+    "audit_summary": "Options (d) and (e) are identical because $e^{i\\pi n^2}=(-1)^n$ for integer $n$. They transform with eigenvalue $-1$ rather than being strictly invariant. A periodic $4\\times4$ square-lattice $J_1$-$J_2$ Heisenberg calculation at $J_2/J_1=0.5$, using an explicitly nematic Jastrow seed in the complete 12,870-state $S^z=0$ space, gives normalized $R=+1$ residuals $3.65\\times10^{-17}$ and $6.84\\times10^{-17}$ for (a) and (b), an $R=+1$ residual $0.235$ for (c), and normalized $R=-1$ residuals below $3.2\\times10^{-15}$ for (d) and (e). Independent Metropolis VMC energies agree with exhaustive variational energies within blocking errors. On-the-fly VMC without Hilbert-space enumeration, using four chains and 65,536 measurements per choice, gives the same sectors on $8\\times8$ and $12\\times12$: the sampled rotation residual is zero to machine precision for (a), (b), and the $-1$ test of (d)/(e), while the $+1$ residual of (c) is $0.439$ and $0.629$, respectively. Thus a physical-ray convention gives (a), (b), (d), and (e), whereas strict amplitude invariance gives only (a) and (b); the original reference is inconsistent under either convention. The corrected problem explicitly asks for eigenvalue $+1$."
+  },
+  {
+    "index": 7,
+    "type": "DMRG",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "entanglement_scaling_missing",
+      "reference_not_generic"
+    ],
+    "audit_summary": "Gaplessness alone does not fix the required tensor-network bond dimension. Ordinary $2+1$-dimensional critical points can obey an area law $S\\sim L$, whereas a state with a codimension-one Fermi surface has $S\\sim L\\log L$. Only the latter scaling yields the reference choice: a snake-like MPS cut requires $\\log\\chi_{\\mathrm{DMRG}}\\gtrsim cL\\log L$, while a PEPS cut crosses order-$L$ bonds and requires $\\log\\chi_{\\mathrm{PEPS}}\\gtrsim c\\log L$."
+  },
+  {
+    "index": 8,
+    "type": "QMC",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "reference_wrong"
+    ],
+    "audit_summary": "The reference incorrectly included option (f). The high-field quantum critical point has emergent $U(1)$ behavior in the 3D XY universality class, not 3D Ising behavior. The two finite-temperature Kosterlitz-Thouless transitions and the zero-temperature ordered phases make (b) and (i) the correct choices."
+  },
+  {
+    "index": 9,
+    "type": "QMC",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "prompt_typos",
+      "multi_select_instruction_missing"
+    ],
+    "audit_summary": "A uniform on-site spin rotation changes the sign of every pair-flip matrix element on either lattice, so both the square-only statement (b) and the combined statement (e) are true under the question's multi-select answer format. Logical overlap does not make either true statement invalid, and the original reference $\\boxed{b;e}$ is retained. The corrected prompt explicitly says to select all that apply and also fixes the duplicated word 'on' and the phrase 'does not have as a sign problem'."
+  },
+  {
+    "index": 10,
+    "type": "QMC",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "duplicated_options",
+      "complexity_claim_ambiguous"
+    ],
+    "audit_summary": "The one-dimensional transverse-field Ising chain has an exact polynomial-time free-fermion solution through the Jordan-Wigner transformation. For the two-dimensional sign-free model, absence of negative weights does not by itself prove polynomial Markov-chain mixing or a polynomial-time ground-state algorithm. The original options mix the two claims, options (b) and (d) are duplicates, and option (g) can be read as denying the known one-dimensional algorithm. The minimal correction changes only option (g) to state both conclusions accurately."
+  },
+  {
+    "index": 11,
+    "type": "DMRG",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "reference_wrong",
+      "open_boundary_sum_malformed"
+    ],
+    "audit_summary": "The open-chain Hamiltonian needs one fewer $y$ bond than $x$ bonds. With that boundary condition, exact small-size spectra give degeneracy $2^{N/2}$, not $2^{N/2-1}$, while the central charge remains $c=1/2$."
+  },
+  {
+    "index": 12,
+    "type": "DMRG",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "reference_wrong",
+      "asymptotic_regime_missing"
+    ],
+    "audit_summary": "The latest official reference removes the nonexistent option (e), but its remaining choice (c) is still not universal. At finite length and finite pinning strength, fitted effective lengths can satisfy either ordering because the two observables can contain different mixtures of transfer-matrix channels and boundary corrections. In the weak-pinning, long-cylinder regime specified below, both procedures probe the same lowest bulk spin channel and yield the same asymptotic correlation length, giving (b)."
+  },
+  {
+    "index": 13,
+    "type": "VMC",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "reference_overselected",
+      "gradient_formula_malformed",
+      "variance_claim_not_guaranteed"
+    ],
+    "audit_summary": "A mismatch between the support of the wavefunction and its parameter derivative can bias the log-derivative estimator. High variance is not a necessary consequence and can even be zero, so option (e) is not generally valid."
+  },
+  {
+    "index": 14,
+    "type": "ED",
+    "audit_status": "red",
+    "correction_state": "original_retained",
+    "issue_types": [
+      "answer_format_inconsistent",
+      "level_spacing_definition_ambiguous",
+      "prompt_typo"
+    ],
+    "audit_summary": "Option (e) is offered but omitted from the list of permitted answer labels. More importantly, exact center-of-mass magnetic-translation partners and nonzero spacings between distinct multiplets are mixed together. At filling $1/4$, magnetic translations enforce exact fourfold multiplets. Under the compressible finite-density-of-states assumption intended by the reference, the typical nonzero spacing between distinct low-energy multiplets is proportional to inverse area, hence $1/N$."
+  },
+  {
+    "index": 15,
+    "type": "ED",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 16,
+    "type": "ED",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "under_specified_symmetry_representation",
+      "ambiguous_block_count"
+    ],
+    "audit_summary": "The original prompt does not specify the spin action of the rotation or the precise block-counting convention. The corrected problem retains the full Fock space and fixes physical spin rotation, $R^4=\\mathcal T^2=(-1)^{\\hat N}$, with time-reversal-related blocks counted together. Fermion parity is already generated by $\\mathcal T^2$, so its even and odd sectors must remain distinct. At $\\Gamma$, even parity has three rotation classes under time reversal, $1$, $-1$, and $\\{i,-i\\}$; odd parity has two, $\\{e^{i\\pi/4},e^{-i\\pi/4}\\}$ and $\\{e^{3i\\pi/4},e^{-3i\\pi/4}\\}$. Each parity also has one axial and one diagonal momentum star, giving $(3+2)+(2+2)=9$. Sparse diagonalization of two interacting models in the complete $262144$-dimensional Fock space confirms nine distinct spectra, with eigenpair residuals below $3.8\\times10^{-11}$. Orbital-only rotation instead gives ten classes on the complete Fock space; five counts only one parity's spatial/TR classes and is not the full spinful count."
+  },
+  {
+    "index": 17,
+    "type": "Other",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 18,
+    "type": "QMC",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "lattice_geometry_missing",
+      "algorithm_unspecified",
+      "reference_wrong"
+    ],
+    "audit_summary": "Sign freedom depends on the lattice and Monte Carlo representation. In the specified Majorana hopping-channel construction on a bipartite lattice, opposite-sublattice repulsion $V>0$ has nonnegative weights. Failure of that sufficient condition for $V<0$ alone would not prove a sign problem. However, a direct 50-digit trace over all 16 Fock states on an open $2\\times2$ square at $t=1$, $V=-4$, $\\beta=4$, and $\\Delta\\tau=0.1$ gives an auxiliary-field weight $-3.3895182466\\times10^{-48}$, or a trace $-0.0409633738$ after strictly positive rescaling. The HS identities and gauge mapping are independently checked. Thus (a) and (d) are correct under the stated convention that negative weights can occur. This is not a no-go claim about alternative representations."
+  },
+  {
+    "index": 19,
+    "type": "ED",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 20,
+    "type": "ED",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 21,
+    "type": "PEPS",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 22,
+    "type": "ED",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 23,
+    "type": "Other",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "thermodynamic_limit_missing",
+      "boundary_conditions_missing"
+    ],
+    "audit_summary": "The reference values are obtained from the thermodynamic charge ground state, where the $U=\\infty$ one-dimensional Hubbard charge sector maps to a partially filled spinless SSH band. A finite chain depends on its length, boundary condition, and allowed momenta, none of which are given, so the requested three-decimal vector is not unique as written."
+  },
+  {
+    "index": 24,
+    "type": "QMC",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 25,
+    "type": "ED",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 26,
+    "type": "Other",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "normalization_ambiguous",
+      "cluster_boundary_condition_missing"
+    ],
+    "audit_summary": "The prompt calls the target extensive but gives energy per site as its example, and it never says whether $E_n$ is a total open-cluster property or a per-site quantity. The reference telescoping identity holds when $E_n$ is the total property of the connected open $n$-site chain and each embedded subchain is counted with multiplicity. If $E_n$ denotes a per-site value, the formula changes."
+  },
+  {
+    "index": 27,
+    "type": "QMC",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "reference_incomplete",
+      "index_typo"
+    ],
+    "audit_summary": "The down-spin index in the Zeeman term was inconsistent. After correcting it to a local Zeeman coupling, a purely imaginary same-sublattice hopping preserves the particle-hole pairing that makes the determinant nonnegative, so option (c) must be included."
+  },
+  {
+    "index": 28,
+    "type": "DMRG",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 29,
+    "type": "Other",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 30,
+    "type": "Other",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 31,
+    "type": "Other",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "reference_wrong",
+      "dimension_missing",
+      "correlator_definition_ambiguous"
+    ],
+    "audit_summary": "The value $h=1$ assumes the standard one-dimensional normalization, which was not stated. The original option (c) displayed an ordinary correlator, which approaches a nonzero product of one-point functions when $g\\ne0$, although its intended connected correlator does decay exponentially. The original reference also omitted the $g=0$ symmetry-breaking transition in option (b)."
+  },
+  {
+    "index": 32,
+    "type": "Other",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 33,
+    "type": "Other",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 34,
+    "type": "Other",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 35,
+    "type": "Other",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "missing_tensor_definition",
+      "gauge_phase_ambiguity"
+    ],
+    "audit_summary": "The global projector identity alone does not determine individual local tensor entries. The corrected problem supplies the published even-parity local tensor, identifies $(k,i,j)$ with the $(z,x,y)$ virtual legs, and fixes its normalization, gauge, and phases. For spin 1, $U^zU^xU^y=I$, so $Q_{000}=I$, $Q_{011}=U^z$, $Q_{101}=U^x$, and $Q_{110}=U^y$, while odd-parity components vanish. Thus the original reference answer $a;b$ is retained, and the model response incorrectly adds (c) and (d)."
+  },
+  {
+    "index": 36,
+    "type": "PEPS",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "duplicate_option_label",
+      "reference_wrong"
+    ],
+    "audit_summary": "The option label (g) appeared twice, making the reference meaningless. The standard tensor-network procedure is to coarse-grain to a fixed point, build the transfer matrix, and analyze its eigenvalue spectrum."
+  },
+  {
+    "index": 37,
+    "type": "Other",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 38,
+    "type": "Other",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "malformed_hamiltonian",
+      "missing_particle_sector",
+      "conflated_field_and_flux",
+      "response_limit_ambiguous"
+    ],
+    "audit_summary": "The original problem did not specify the spinful particle sector, the relation between the Zeeman field and total Peierls phase, or the ground-state branch and order of limits. The corrected problem fixes one spin-up fermion, uniform link phases, the clockwise current convention, and the nondegenerate small-field branch. It then gives $E_0(B)=-2t\\cos(qB/n)-\\mu B/2$ and $M(B)=\\mu/2-(2tq/n)\\sin(qB/n)=\\mu/2-(2tq^2/n^2)B+O(B^3)$. Thus the linear coefficient is proportional to $q^2$ and independent of $\\mu$, the small positive-field current is clockwise, and the original reference answer $a;d;i$ is retained."
+  },
+  {
+    "index": 39,
+    "type": "Other",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "reference_wrong"
+    ],
+    "audit_summary": "The reference omitted the correct prefactor for the overlap of the two SSH end modes. At fixed half filling, the lowest many-body gap is twice the positive end-mode energy."
+  },
+  {
+    "index": 40,
+    "type": "Other",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "reference_wrong"
+    ],
+    "audit_summary": "The question is well-defined as written, so its prompt and all distractors are retained byte-for-byte. The reference incorrectly selected option (d), whose proposed gap grows exponentially with system size when $t_2>t_1$. The topological phase instead has exponentially localized end modes whose splitting decays with length, making (a) and (e) the correct choices."
+  },
+  {
+    "index": 41,
+    "type": "Other",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "complex_rhs_for_real_quantity",
+      "transform_convention_missing"
+    ],
+    "audit_summary": "The left side is real, but the displayed one-sided transform with $e^{i\\omega t}$ is generally complex even after taking the real part of the time-domain correlator. The stated prefactor is correct for the cosine transform of the real correlator, equivalently one half of the full symmetrized spectrum, but not for the literal complex integral."
+  },
+  {
+    "index": 42,
+    "type": "SM",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "dimensionally_inconsistent_ratio",
+      "parameter_definition_wrong"
+    ],
+    "audit_summary": "The reference formula is the result of the linear Ornstein-Uhlenbeck covariance calculation only when the dimensionless inertial ratio is $\\rho=\\gamma\\tau/m$. The prompt instead defines $\\rho=\\gamma/(m\\tau)$, which is not dimensionless and does not reproduce the covariance result when inserted into the reference. The corrected problem fixes that ratio; the displayed diffusivity then agrees exactly."
+  },
+  {
+    "index": 43,
+    "type": "SM",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "noise_and_time_reversal_conventions_missing",
+      "fdt_sign_convention_missing",
+      "prompt_typos"
+    ],
+    "audit_summary": "The original prompt omitted the angular-noise normalization, confinement, the time-reversal parity of the propulsion orientation, and the FDT sign convention. The corrected problem treats the propulsion direction as a time-even internal polarity and holds $v_0$ fixed, so the lifted dynamics is irreversible at fixed $v_0$. Its steady density is nevertheless $P_{\\rm ss}(\\mathbf{x},\\theta)\\propto e^{-V(\\mathbf{x})/T}$. For the specific perturbation $V\\to V+h\\phi$, integration by parts in $\\theta$ gives $R(s)=-T^{-1}\\langle(\\mathcal L\\phi)(0)\\phi(s)\\rangle=T^{-1}dC(s)/ds$. Thus this potential-response FDT holds despite irreversibility, and the original reference answer (c) is retained. A Boltzmann stationary density alone would not establish a dynamical FDT for an arbitrary process; the special perturbation structure is essential."
+  },
+  {
+    "index": 44,
+    "type": "SM",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "missing_ensemble_assumptions",
+      "stability_criterion_ambiguity"
+    ],
+    "audit_summary": "The original prompt specified only entrywise moments and described pathwise synchronization, whereas its reference uses the bulk spectral edge of a frozen instantaneous Jacobian. The corrected problem therefore specifies the jointly Gaussian covariance, the stationary paramagnetic chaotic branch reached from generic isotropic initial conditions, the order of limits, and the frozen-Jacobian bulk-edge criterion, with finite-rank outliers excluded. Dynamic mean-field theory gives $q_*-\\gamma=2\\sigma\\sqrt{q_*}/\\sqrt{3}$, while the transverse bulk edge is $-2K-(q_*-\\gamma)+2\\sigma\\sqrt{q_*}$. Its zero crossing reproduces the original reference answer. This deliberately differs from genuine pathwise synchronization, which is controlled by the largest long-time transverse Lyapunov exponent."
+  },
+  {
+    "index": 45,
+    "type": "SM",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 46,
+    "type": "SM",
+    "audit_status": "red",
+    "correction_state": "corrected",
+    "issue_types": [
+      "reference_wrong",
+      "discretization_measure_under_specified",
+      "prompt_typo"
+    ],
+    "audit_summary": "The reference coefficient $+4x^2$ is inconsistent with the standard Stratonovich action using endpoint normalization. The original wording did not state the discrete path measure explicitly, which made it easy to confuse this action with a different covariant representation."
+  },
+  {
+    "index": 47,
+    "type": "Other",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 48,
+    "type": "PEPS",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  },
+  {
+    "index": 49,
+    "type": "SM",
+    "audit_status": "green",
+    "correction_state": "unchanged",
+    "issue_types": [],
+    "audit_summary": "Question and reference answer accepted as written."
+  }
+]

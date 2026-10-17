@@ -1,0 +1,289 @@
+{
+  "source": "Final expert adjudications from analysis/CritPt/supplemental_data/verdict_review.json, restricted to the 56 challenges reviewed in the paper.",
+  "policy": {
+    "problem": "Judge the original task. clean includes manageable issues correctly resolved by the model; repairable requires a documented expert-provided substantive correction; unrepairable requires an explicit expert conclusion that no unambiguous repair is possible.",
+    "model": "Benchmark errors take precedence in audit attribution. For every repairable or unrepairable problem, set the model verdict to none regardless of whether the original answer was judged correct or incorrect. Assess model correctness only for clean problems. Historical expert assessments remain evidence, not active model attributions. This audit rule does not alter judgments or scores from separate corrected evaluations."
+  },
+  "challenges": {
+    "01": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The expert explicitly edited the statement to fix the anomaly sign convention and supply missing density terms; the corrected problem is provided. The expert confirms all eleven requested coefficients agree. The original model solution also displays the full anomaly density, including the four invariants omitted from the original question; these terms are present before the expert repair."
+    },
+    "02": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert says the problem is well-defined and the existing solution was verified."
+    },
+    "03": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert confirms well-definedness and describes the additions as remarks rather than corrections; the extra normalization and geodesic arguments do not overturn the accepted answer."
+    },
+    "04": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The final adjudication treats the ambiguity as manageable: the expert calls the AI answer perfect for the possible OAM/SAM eigenstates and explicitly says the AI clarified that its answer gives components of a superposition. The revised wording adopts that already-stated scope."
+    },
+    "05": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert verified both the final answer and the complete derivation; the new upload offers a shorter alternative."
+    },
+    "06": {
+      "problem": "clean",
+      "model": "incorrect",
+      "reason": "The final expert clarification accepts the expert's full typo correction: hbar^2/m_e = 7619.96423. This is a recoverable typo, hence clean. The original AI used hbar^2/(2m_e) = 7619.96423 and returned (1,1,-2), 10.50, whereas the expert's accepted values are (1,-1,0), 7.51; the original AI is incorrect under the fully corrected convention."
+    },
+    "07": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The final expert clarification accepts replacing the problem and solution with the uploaded expert files. This supplies the accepted problem repair. The expert states that the derivations are correct given the initial fidelity assumption. The original and accepted final QFI expressions agree; the uploaded replacement clarifies the interpretation rather than correcting that result."
+    },
+    "08": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The submitted problem explicitly supplies previously unstated action normalizations and orientation/sign conventions that affect a requested signed quantity. This is a documented repair, beyond the harmless numbering and tetrad-label fixes. The original final tuple (3.1675, 0.85, 5.335) agrees with the accepted answer. The repair specifies the action normalization and orientation/sign conventions used by that solution."
+    },
+    "09": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert confirms well-definedness and verifies the existing solution."
+    },
+    "10": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert calls the statement technically correct and the numerical answer correct; proposed changes concern readability, coherence and a minor convention."
+    },
+    "12": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The expert-accepted original AI solution is the ground truth. The authorized repair now explicitly defines successive ground-space projections and the geometric phase convention, which the original tunneling description omitted. The final expert clarification explicitly accepts the original AI solution as ground truth and instructs patching the problem to match it."
+    },
+    "13": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The expert-accepted original AI solution is the ground truth. The authorized statement repair fixes the previously unspecified vacuum-channel geometry and sector convention. The final expert clarification explicitly accepts the original AI solution as ground truth under its vacuum-channel geometry and sector convention. The original and accepted 36-tuple answers agree."
+    },
+    "14": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert confirms well-definedness and verifies the existing solution."
+    },
+    "16": {
+      "problem": "clean",
+      "model": "incorrect",
+      "reason": "The expert's literal momentum-diagonal answer is authoritative: U_c = 28 - 18 sqrt(2). The original AI explicitly switches to an on-site real-space Hubbard model and reports 2.81769435790, so it answers a different problem. The printed Hamiltonian is clean and the original model answer is incorrect."
+    },
+    "17": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The missing entropy minus sign is explicitly identified by the AI itself. The reviewer removes discussion of that typo after fixing the prompt, so the manageable-issue policy applies."
+    },
+    "18": {
+      "problem": "clean",
+      "model": "incorrect",
+      "reason": "Both submissions agree: the statement is well-defined but the AI assumes real polarizabilities without authorization and omits the general complex case."
+    },
+    "19": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert explicitly verifies the solution and endorses its reasonable input/phase/transmissivity conventions, requesting acceptance of convention-equivalent answers. Treat those acknowledged conventions as manageable clarifications."
+    },
+    "20": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert verifies the solution and calls its additional optical-binding term a good correction, not a model error."
+    },
+    "22": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The final expert clarification accepts the expert's uploaded problem, solution and final answer as the repaired ground truth. These files are retained verbatim rather than replacing the chosen interpretation with a new one. The final expert clarification accepts all three uploaded files as ground truth. The original and accepted final expressions agree: a = cos^2(theta), f(x) = h2(a) + a*h2(x) - x*h2(a)."
+    },
+    "23": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert says the unchanged solution is fully correct. The dimensional-index notation, collinear-definition wording and positive-energy clarification are manageable statement fixes; the solution already states the positive-momentum assumption. The requested x intervals exclude the endpoint caveat."
+    },
+    "26": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The undefined a_+ in the axial oscillator term is a recoverable operator-label typo: the same statement defines a_z as the axial operator. The expert verifies the solution and makes no solution changes; a_z replaces a_+ in the uploaded prompt."
+    },
+    "28": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The expert explicitly calls the original repairable and provides a revised prompt defining the leading omega-squared coefficients and an intensive conductivity; literal zero-frequency rates do not have the requested exponents. The expert explicitly verifies the original final tuple under the intended sequential limit. The original (10.0, 2.0, 6.0) agrees with the accepted (10, 2, 6); the revised prompt makes the frequency-coefficient and intensive-conductivity definitions explicit."
+    },
+    "29": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert verifies the unchanged solution and specifically notes that the AI identified the needed mutual-incoherence assumption."
+    },
+    "30": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert marks the problem well-defined and selects verification of the existing solution, with affirmative solution notes."
+    },
+    "31": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The same reviewer's later submission (8/30/2026 15:39:12) explicitly supersedes the earlier generic Yes: the model must be specified and has been revised. The provided prompt adds the three-dimensional geometry and Boussinesq approximation. Both submissions were checked. The expert verified the existing solution, then specified the missing model assumptions in the revised prompt. The original values 816.7444 and 2.21473 agree with the accepted result under the three-dimensional Boussinesq model."
+    },
+    "32": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The expert says the model must be specified and supplies an edited problem explicitly defining the Boussinesq approximation. The correction is present in the uploaded statement even though no solution file was uploaded. The expert explicitly says the existing solution was verified and supplies the Boussinesq problem repair. The user expressly instructs repairable/correct. Absence of an uploaded replacement solution or final-answer file is not evidence that the original model was incorrect or unassessed."
+    },
+    "33": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "Both submissions agree that the problem is well-defined and the existing solution was verified; describing it as trivial does not change correctness."
+    },
+    "35": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert confirms well-definedness and states that no solution changes were needed. The known misfiled challenge-17 attachments are not used to judge this Hamiltonian-reconstruction challenge."
+    },
+    "39": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert explicitly calls the solution correct and reports an equivalent optical-Bloch derivation and independent numerical cross-check."
+    },
+    "40": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The expert explicitly says the original is ambiguous and provides the corrected assignment of sigma to the rank-two dissipative current while excluding the independent rank-three contribution. The expert states that the original final answer remains correct with the clarified dissipative-current assignment. The original and accepted dispersion expressions agree."
+    },
+    "41": {
+      "problem": "unrepairable",
+      "model": "none",
+      "reason": "The expert explicitly says the finite-size prescription cannot be corrected unambiguously from the wording and that no unique solution can be reviewed. Reproducing one value under additional conventions is not a repair."
+    },
+    "42": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The authorized statement repair makes the large-gate geometry, puddle meaning, equilibrium screening model and fixed gate capacitance explicit, following the expert response and corrected solution. The expert describes the corrected derivation as essentially the same result. The original tuple (-1/3, 2/3, True, True, True, True) agrees with the accepted scaling and qualitative conclusions under the clarified geometry and screening assumptions."
+    },
+    "44": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The expert explicitly identifies a material factor-of-four normalization ambiguity and supplies the Hamiltonian and sign in the revised prompt. The separate rounding correction is minor, but the Hamiltonian ambiguity is not. The expert calls the proposed solution perfect. The original (4, 1, -9.80028270024311) agrees with the accepted (4, 1, -9.800) to the requested precision; the Hamiltonian normalization is repaired separately."
+    },
+    "45": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The original statement already explicitly assumes equal electron and hole relaxation times. The expert solution uses that assumption; the final expert clarification accepts it. The additional constant-relaxation-time/nondegenerate clarification is manageable, so clean/correct applies."
+    },
+    "46": {
+      "problem": "unrepairable",
+      "model": "none",
+      "reason": "The expert says no threshold or labeling criterion uniquely identifies the scar states; specifying the primary parent tower would introduce new authorial intent rather than unambiguously correct the original."
+    },
+    "47": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The problem is confirmed well-defined. The reviewer adds a missing limiting-case discussion and explicitly states that it does not change the conclusion."
+    },
+    "48": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The expert identifies nonunique analytic continuation; the supplied revised prompt prescribes Z_can near n=1 and asks for its derivative. The original final-answer file already contains 0.674499120060534, agreeing with the accepted 0.6744991200605346131. The model correctly identifies the continuation ambiguity and supplies the numerical result selected by the repaired canonical continuation."
+    },
+    "49": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert explicitly verifies the final answer and all formulas; the added arguments fill explanatory gaps without changing the answer."
+    },
+    "50": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert marks the statement well-defined and verifies the unchanged solution. The uploaded statement's minor combinatorial wording correction does not override that explicit assessment."
+    },
+    "51": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The reviewer characterizes the prompt changes as a few tiny modifications and the solution as pretty much correct. The already-used transition/weight assumptions are made explicit; small explanatory corrections retain the solution."
+    },
+    "53": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert marks the problem well-defined and describes only added derivations, convention statements and independent verification."
+    },
+    "55": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The objection is to decimal-place wording. The expert explicitly calls the AI solution flawless, including its compliance with the requested precision."
+    },
+    "56": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The expert ZIP and direct solution/final-answer uploads are accepted as ground truth. The material response, geometry, velocity and finite-coherence SNR assumptions of the primary reference calculation are now explicit in the repaired prompt. The expert explicitly concludes there is no consequential model error and accepts the sharp two-regime convention as an alternative. Original values 3.012e-23 and 1.447e-24 lie within the expert grading tolerances around that accepted alternative (2.97e-23 and 1.43e-24). The primary repaired reference uses the finite-coherence statistic (3.05e-23 and 1.85e-24)."
+    },
+    "57": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The expert ZIP and direct solution/final-answer uploads are accepted as ground truth. The missing density, velocity, arm length, material, orientation average and semicoherent statistic are now explicit in the repaired prompt. The expert identifies a genuine consequential error: the original answer assumes fully coherent integration for 13 years despite the finite coherence time, and uses an unrealistic optimal projection. It overstates reach by factors of approximately 22-27. Supplying the missing prompt inputs does not fix those errors in the original answer."
+    },
+    "58": {
+      "problem": "clean",
+      "model": "incorrect",
+      "reason": "The expert confirms well-definedness but replaces the AI's no-solution conclusion: a permitted uniform magnetization component yields valid magnetic space groups."
+    },
+    "59": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert confirms well-definedness and verifies the solution; additions explain nonlinearity and experimental context."
+    },
+    "60": {
+      "problem": "clean",
+      "model": "incorrect",
+      "reason": "The expert confirms well-definedness but identifies the AI's unsupported fixed-separation restriction. The submitted answer omits the required two-unknown-parameter treatment even though the agent considered it."
+    },
+    "61": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The expert explicitly changes the unspecified connectivity of the complete subgraphs to the connectivity assumed by the solution and provides the corrected prompt. The expert separately identifies an original solution error: using a method that requires time-dependent gamma although gamma is fixed in this task. The original final (T, P) = (801, 0.98) does not agree with the corrected optimization result (794, 0.04). Repairing graph connectivity does not fix this solution error."
+    },
+    "62": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The expert explicitly says the problem was corrected and clarified. The revised prompt supplies a valid local phase unitary and, materially, optimizes over a binary POVM; otherwise the requested answer is measurement-dependent. The expert checked the original final results without changing them. The original and accepted formulas agree; the repair makes the valid local phase operation and optimization over binary POVMs explicit."
+    },
+    "64": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert confirms well-definedness and reports only added independent derivation and numerical confirmation of both configurations."
+    },
+    "65": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert confirms well-definedness and verifies the existing solution."
+    },
+    "66": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The expert verifies the solution. Suggested changes concern the R-charge name and representation wording, not the stated charge assignments or computation."
+    },
+    "67": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The expert says the solution depends on the unproved Spin Alignment Conjecture and that this must be explicit. The uploaded prompt adds that assumption, turning the task into a conditional one. The expert verifies the solution conditional on the Spin Alignment Conjecture. The original and accepted result Q = 1/d agrees; the repaired prompt explicitly adds the conjectural assumption already needed by the derivation."
+    },
+    "68": {
+      "problem": "repairable",
+      "model": "none",
+      "reason": "The expert identifies the ill-defined inverse for singular sigma and explicitly adds sigma > 0 to the supplied statement. The AI's quoted caveat says additional support conditions are needed rather than completing the unrestricted singular case; this is a domain restriction, not just a typographical fix. The original and accepted derivative formulas agree for strictly positive sigma. The model already cautions about singular-support conditions, and the expert repair explicitly restricts the domain to sigma > 0."
+    },
+    "69": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The new user-relayed expert clarification explicitly says the original problem is well-defined and the original AI answer is correct. Accept that adjudication, preserve the original answer's numerical/conjectural qualifications, and append the uploaded expert presentation as requested."
+    },
+    "70": {
+      "problem": "clean",
+      "model": "correct",
+      "reason": "The final expert clarification states that the original problem is well-defined and the original model answer is correct. The accepted answer retains its numerical and conjectural qualifications."
+    }
+  }
+}

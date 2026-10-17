@@ -1,0 +1,14 @@
+# Python 3.10+ on Linux/macOS; native scoring uses multiprocessing fork.
+# Provider SDKs and the UGPhysics scorer's imports.
+anthropic>=1.4,<2
+openai>=3.8,<4
+httpx==0.28.1
+chardet>=5,<8
+
+# Released PHYBench, PRISM, and UGPhysics symbolic graders.
+numpy>=1.26,<3
+sympy==1.13.1
+antlr4-python3-runtime==4.11.1
+latex2sympy2-extended==1.11.0
+regex>=2024.5.15
+timeout-decorator==0.5.0
